@@ -10,6 +10,7 @@ import unidecode
 import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+
 def classificar_texto(texto, coluna_texto, coluna_classificacao):
     vetorizar = CountVectorizer(lowercase=False, max_features=50)
     bag_of_words = vetorizar.fit_transform(texto[coluna_texto])
@@ -18,6 +19,11 @@ def classificar_texto(texto, coluna_texto, coluna_classificacao):
                                                               random_state = 42)
     regressao_logistica = LogisticRegression(solver='lbfgs')
     regressao_logistica.fit(treino, classe_treino)
+
+    nova_frase_vetorizada = vetorizar.transform(['Razoável Preço bom. No entanto o sabor deixa a desejar apesar de ser um uísque bem conceituado.'])
+    resultado = regressao_logistica.predict(nova_frase_vetorizada)
+    print(resultado[0])
+    
     return regressao_logistica.score(teste, classe_teste)
 
 def pareto(texto, coluna_texto, quantidade):
