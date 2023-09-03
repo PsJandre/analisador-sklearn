@@ -113,15 +113,15 @@ for opiniao in resenha["tratamento_4"]:
 resenha["tratamento_5"] = frase_processada
 
 
-tfidf = TfidfVectorizer(lowercase=False, max_features=50)
+# tfidf = TfidfVectorizer(lowercase=False, max_features=50)
 
 
-tfidf_bruto = tfidf.fit_transform(resenha["tratamento_5"])
-treino, teste, classe_treino, classe_teste = train_test_split(tfidf_bruto, resenha["classificacao"], random_state = 42)
+# tfidf_bruto = tfidf.fit_transform(resenha["tratamento_5"])
+# treino, teste, classe_treino, classe_teste = train_test_split(tfidf_bruto, resenha["classificacao"], random_state = 42)
 
-regressao_logistica = LogisticRegression(solver='lbfgs')
-regressao_logistica.fit(treino, classe_treino)
-acuracia_tfidf_bruto = regressao_logistica.score(teste, classe_teste)
+# regressao_logistica = LogisticRegression(solver='lbfgs')
+# regressao_logistica.fit(treino, classe_treino)
+# acuracia_tfidf_bruto = regressao_logistica.score(teste, classe_teste)
 
 
 print(classificar_texto(resenha, "text_pt", "classificacao"))
@@ -130,7 +130,7 @@ print(classificar_texto(resenha, "tratamento_2", "classificacao"))
 print(classificar_texto(resenha, "tratamento_3", "classificacao"))
 print(classificar_texto(resenha, "tratamento_4", "classificacao"))
 print(classificar_texto(resenha, "tratamento_5", "classificacao"))
-print(acuracia_tfidf_bruto)
+# print(acuracia_tfidf_bruto)
 
 
 
