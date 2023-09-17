@@ -1,25 +1,23 @@
+#region imports
 import pandas as pd
+from string import punctuation
+import unidecode
+import re
+import numpy as np
+import nltk
+from nltk import tokenize
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import CountVectorizer
-import nltk
-from nltk import tokenize
-import seaborn as sns
-from string import punctuation
-import unidecode
-import matplotlib.pyplot as plt
 from sklearn.feature_extraction.text import TfidfVectorizer
-import re
-import spacy
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV
-import numpy as np
 from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import ShuffleSplit
+#endregion
 
-
+#region preparando base
 resenha = pd.read_csv("balanced_output.csv")
 classificacao = resenha["sentiment"].replace(["neg", "pos"], [0, 1])
 resenha["classificacao"] = classificacao
@@ -59,6 +57,9 @@ def tratamento_unico(resenha):
   resenha["tratamento_unico"] = frase_processada
 
 tratamento_unico(resenha)
+#endregion
+
+#region preparando a base para analise
 
 # unigrama CV
 vect_uni_cv = CountVectorizer(ngram_range=(1,1), stop_words=stop_words)
@@ -92,76 +93,134 @@ text_vect_bi_idf = vect_bi_idf.transform(resenha.tratamento_unico)
 
 # separando base de treinamento x teste do Bigrama com Tfidf Vectorizer - BIDF
 X_trainBIDF, X_testBIDF, y_trainBIDF, y_testBIDF = train_test_split(text_vect_bi_idf, resenha["sentiment"], test_size = 0.2, random_state = 123)
-     
 
-# unigrama CV
+#endregion     
+
+#region DecisionTree unigrama CV
 treeUCV = DecisionTreeClassifier(random_state=123)
 treeUCV.fit(X_trainUCV, y_trainUCV)
 treeUCV.score(X_trainUCV, y_trainUCV)
 
 y_predictionUCV = treeUCV.predict(X_testUCV)
 accuracyUCV = accuracy_score(y_predictionUCV, y_testUCV)
-print("Acurácia do Unigrama Count Vectorizer: ", accuracyUCV)
+print("Acurácia do Unigrama DecisionTree Count Vectorizer: ", accuracyUCV)
 
-# unigrama IDF
+#endregion
+
+#region unigrama DecisionTree IDF
 treeUIDF = DecisionTreeClassifier(random_state=123)
 treeUIDF.fit(X_trainUIDF, y_trainUIDF)
 treeUIDF.score(X_trainUIDF, y_trainUIDF)
 
 y_predictionUIDF = treeUIDF.predict(X_testUIDF)
 accuracyUIDF = accuracy_score(y_predictionUIDF, y_testUIDF)
-print("Acurácia do Unigrama Tfidf Vectorizer: ", accuracyUIDF)
+print("Acurácia do Unigrama DecisionTree Tfidf Vectorizer: ", accuracyUIDF)
 
-# unigrama CV
+#endregion
+
+#region bigrama DecisionTree CV
 treeBCV = DecisionTreeClassifier(random_state=123)
 treeBCV.fit(X_trainBCV, y_trainBCV)
 treeBCV.score(X_trainBCV, y_trainBCV)
 
 y_predictionBCV = treeBCV.predict(X_testBCV)
 accuracyBCV = accuracy_score(y_predictionBCV, y_testBCV)
-print("Acurácia do Bigrama Count Vectorizer: ", accuracyBCV)
+print("Acurácia do Bigrama DecisionTree Count Vectorizer: ", accuracyBCV)
 
-# unigrama IDF
+#endregion
+
+#region bigrama DecisionTree IDF
 treeBIDF = DecisionTreeClassifier(random_state=123)
 treeBIDF.fit(X_trainBIDF, y_trainBIDF)
 treeBIDF.score(X_trainBIDF, y_trainBIDF)
 
 y_predictionBIDF = treeBIDF.predict(X_testBIDF)
 accuracyBIDF = accuracy_score(y_predictionBIDF, y_testBIDF)
-print("Acurácia do Bigrama Tfidf Vectorizer: ", accuracyBIDF)
+print("Acurácia do Bigrama DecisionTree Tfidf Vectorizer: ", accuracyBIDF)
 
-# unigrama
+#endregion
+
+#region unigrama RandomForest CV
+rfc_uni = RandomForestClassifier(bootstrap=True, criterion='gini', random_state=123)
+rfc_uni.fit(X_trainUCV, y_trainUCV)
+
+y_prediction_rfc_uni_cv = rfc_uni.predict(X_testUCV)
+accuracy_rfc_uni_cv = accuracy_score(y_prediction_rfc_uni_cv, y_testUCV)
+print("Acurácia do Unigrama RandomForest CV: ", accuracy_rfc_uni_cv)
+
+#endregion
+
+#region unigrama RandomForest IDF
 rfc_uni = RandomForestClassifier(bootstrap=True, criterion='gini', random_state=123)
 rfc_uni.fit(X_trainUIDF, y_trainUIDF)
 
 y_prediction_rfc_uni = rfc_uni.predict(X_testUIDF)
 accuracy_rfc_uni = accuracy_score(y_prediction_rfc_uni, y_testUIDF)
-print("Acurácia do Random Forest Classifier - Unigrama: ", accuracy_rfc_uni)
+print("Acurácia do Unigrama RandomForest Tfidf: ", accuracy_rfc_uni)
 
-# bigrama
+#endregion
+
+#region bigrama RandomForest CV
+rfc_bi_cv = RandomForestClassifier(bootstrap=True, criterion='gini', random_state=123)
+rfc_bi_cv.fit(X_trainBCV, y_trainBCV)
+
+y_prediction_rfc_bi_cv = rfc_bi_cv.predict(X_testBCV)
+accuracy_rfc_bi_cv = accuracy_score(y_prediction_rfc_bi_cv, y_testBCV)
+print("Acurácia do Bigrama RandomForest CV: ", accuracy_rfc_bi_cv)
+
+#endregion
+
+#region bigrama RandomForest IDF
 rfc_bi = RandomForestClassifier(bootstrap=True, criterion='gini', random_state=123)
 rfc_bi.fit(X_trainBIDF, y_trainBIDF)
 
 y_prediction_rfc_bi = rfc_bi.predict(X_testBIDF)
 accuracy_rfc_bi = accuracy_score(y_prediction_rfc_bi, y_testBIDF)
-print("Acurácia do Random Forest Classifier - Bigrama: ", accuracy_rfc_bi)
+print("Acurácia do Bigrama RandomForest Tfidf: ", accuracy_rfc_bi)
 
-# regressao linear unigrama
+#endregion
+
+#region regressao linear unigrama CV
+lr_UCV = LogisticRegression(solver='lbfgs')
+lr_UCV.fit(X_trainUCV, y_trainUCV)
+
+y_prediction_lrUCV = lr_UCV.predict(X_testUCV)
+accuracy_lrUCV = accuracy_score(y_prediction_lrUCV, y_testUCV)
+print("Acurácia do Unigrama CV Regressão Logística: ", accuracy_lrUCV)
+
+#endregion
+
+#region regressao linear unigrama IDF
 lr_UIDF = LogisticRegression(solver='lbfgs')
 lr_UIDF.fit(X_trainUIDF, y_trainUIDF)
 
 y_prediction_lrUIDF = lr_UIDF.predict(X_testUIDF)
 accuracy_lrUIDF = accuracy_score(y_prediction_lrUIDF, y_testUIDF)
-print("Acurácia do Unigrama Regressão Logística: ", accuracy_lrUIDF)
+print("Acurácia do Unigrama Tfidf Regressão Logística: ", accuracy_lrUIDF)
 
-# regressao linear bigrama
+#endregion
+
+#region regressao linear bigrama CV
+lr_BCV = LogisticRegression(solver='lbfgs')
+lr_BCV.fit(X_trainBCV, y_trainBCV)
+
+y_prediction_lrBCV = lr_BCV.predict(X_testBCV)
+accuracy_lrBCV = accuracy_score(y_prediction_lrBCV, y_testBCV)
+print("Acurácia do Bigrama CV Regressão Logística: ", accuracy_lrBCV)
+
+#endregion
+
+#region regressao linear bigrama IDF
 lr_BIDF = LogisticRegression(solver='lbfgs')
 lr_BIDF.fit(X_trainBIDF, y_trainBIDF)
 
 y_prediction_lrBIDF = lr_BIDF.predict(X_testBIDF)
 accuracy_lrBIDF = accuracy_score(y_prediction_lrBIDF, y_testBIDF)
-print("Acurácia do Bigrama Regressão Logística: ", accuracy_lrBIDF)
+print("Acurácia do Bigrama Tfidf Regressão Logística: ", accuracy_lrBIDF)
 
+#endregion
+
+#region gridSearch
 # setup do grid search
 n_estimators = [int(x) for x in np.linspace(start = 200, stop = 2000, num = 10)]
 max_features = ['sqrt']
@@ -201,3 +260,4 @@ y_prediction_lr_grid_UIDF = lr_UIDF_grid_cv.predict(X_testUIDF)
 accuracy_lr_grid_UIDF = accuracy_score(y_prediction_lr_grid_UIDF, y_testUIDF)
 print("Acurácia do Unigrama Regressão Logística com Grid Search: ", accuracy_lr_grid_UIDF)
 
+#endregion
