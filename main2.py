@@ -44,11 +44,11 @@ classificacao = resenha["sentiment"].replace(["neg", "pos"], [0, 1])
 resenha["classificacao"] = classificacao
 
 todas_palavras = ' '.join([texto for texto in resenha.text_pt])
-token_espaco = tokenize.WhitespaceTokenizer()
-token_pontuacao = tokenize.WordPunctTokenizer()
+
 palavras_irrelevantes = nltk.corpus.stopwords.words("portuguese")
 
 frase_processada = list()
+token_espaco = tokenize.WhitespaceTokenizer()
 for opiniao in resenha.text_pt:
     nova_frase = list()
     palavras_texto = token_espaco.tokenize(opiniao)
@@ -61,6 +61,7 @@ resenha["tratamento_1"] = frase_processada
 pontuacao = list()
 for ponto in punctuation:
     pontuacao.append(ponto)
+token_pontuacao = tokenize.WordPunctTokenizer()
 pontuacao_stopwords = pontuacao + palavras_irrelevantes
 frase_processada = list()
 for opiniao in resenha["tratamento_1"]:
@@ -131,15 +132,3 @@ print(classificar_texto(resenha, "tratamento_3", "classificacao"))
 print(classificar_texto(resenha, "tratamento_4", "classificacao"))
 print(classificar_texto(resenha, "tratamento_5", "classificacao"))
 # print(acuracia_tfidf_bruto)
-
-
-
-
-
-
-
-
-
-
-
-
